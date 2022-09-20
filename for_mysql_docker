@@ -1,0 +1,26 @@
+SET GLOBAL local_infile=1;
+
+LOAD DATA LOCAL INFILE 'banking/branch.csv'
+INTO TABLE branch
+FIELDS TERMINATED BY ',';
+
+LOAD DATA LOCAL INFILE '/home/Banking/customer.csv'
+INTO TABLE customer
+FIELDS TERMINATED BY ',';
+
+LOAD DATA LOCAL INFILE '/home/Banking/account.csv'
+INTO TABLE account
+FIELDS TERMINATED BY ',';
+
+LOAD DATA LOCAL INFILE '/home/Banking/loan.csv'
+INTO TABLE loan
+FIELDS TERMINATED BY ',';
+
+LOAD DATA LOCAL INFILE '/home/Banking/depositor.csv'
+INTO TABLE depositor
+FIELDS TERMINATED BY ',';
+
+LOAD DATA LOCAL INFILE '/home/Banking/borrower.csv'
+INTO TABLE borrower
+FIELDS TERMINATED BY ',';
+

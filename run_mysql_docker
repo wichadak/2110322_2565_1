@@ -1,0 +1,1 @@
+docker run --name mysql-docker -p 3308:3306 -v /Users/wichadak/Desktop/2110322_2565_1/2110322_2565_1/mysql:/var/lib/mysql -v /Users/wichadak/Desktop/2110322_2565_1/2110322_2565_1:/home -v /Users/wichadak/Desktop/2110322_2565_1/2110322_2565_1/mysql/my.cnf:/etc/mysql/my.cnf -e MYSQL_ROOT_PASSWORD=1234 -d mysql:8.0
