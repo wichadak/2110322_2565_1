@@ -1,0 +1,189 @@
+USE banking;
+SHOW PROCEDURE STATUS;
+
+SP1
+====
+DELIMITER $$
+CREATE PROCEDURE GetCustomers()
+BEGIN
+	SELECT C.customer_name, SUM(A.balance)
+    FROM customer C, account A, depositor D
+    WHERE C.customer_name = D.customer_name AND
+        D.account_number = A.account_number
+    GROUP BY C.customer_name
+	ORDER BY C.customer_name;    
+END$$
+DELIMITER ;
+
+SP2
+===
+DELIMITER $$
+
+CREATE PROCEDURE FindBranch(IN con Integer)
+BEGIN
+    SELECT * 
+    FROM branch
+    WHERE assets > con;
+END$$
+DELIMITER ;
+
+
+SP3
+====
+DELIMITER //
+CREATE PROCEDURE FindBranchAsset(IN con VarChar(1))
+BEGIN
+    SELECT *
+    FROM branch
+    WHERE branch_name =  con;
+END //
+DELIMITER ;
+
+
+SF1
+===
+
+DELIMITER $$
+
+CREATE FUNCTION CustomerLevel(p_moneylevel double) 
+    RETURNS VARCHAR(10)
+    DETERMINISTIC
+BEGIN
+    DECLARE lvl varchar(10);
+    IF p_moneylevel > 500 THEN 
+        SET lvl = 'PLATINUM';
+    ELSEIF (p_moneylevel <= 500 AND p_moneylevel >= 100) THEN 
+        SET lvl = 'GOLD';
+    ELSEIF p_moneylevel < 100 THEN 
+        SET lvl = 'SILVER';
+    END IF; 
+    RETURN (lvl);
+ END $$ 
+DELIMITER ;
+
+
+SELECT C.customer_name, D.account_number, A.balance, 
+    CustomerLevel(A.balance) 
+FROM account A, customer C, depositor D 
+WHERE A.account_number = D.account_number AND 
+    C.customer_name = D.customer_name ;
+
+DELIMITER $$ 
+   
+CREATE PROCEDURE GetCustomerLevel(IN InputName varchar(10), 
+    OUT output varchar(10))
+BEGIN
+    DECLARE debt DOUBLE;
+    SELECT sum(amount) INTO debt 
+    FROM borrower NATURAL JOIN loan 
+    WHERE customer_name = InputName;
+    
+    SELECT CUSTOMERLEVEL(debt) INTO output;
+END$$
+
+DELIMITER ;
+
+
+SET @input = 'Joe';
+CALL GetCustomerLevel(@input, @output);
+SELECT @output;
+
+#==============
+# SELECT INTO
+#==============
+
+GRANT FILE ON *.* TO 'wichadak'@'localhost';
+
+SELECT * INTO OUTFILE '/tmp/test_select_into.csv'
+FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+FROM customer;
+
+SHOW TRIGGER;
+
+CREATE TABLE TriggerTime(exec_time datetime NOT NULL);
+
+CREATE TRIGGER AccountLog 
+BEFORE INSERT ON customer 
+FOR EACH ROW
+INSERT INTO TriggerTime VALUES (NOW());
+
+INSERT INTO customer VALUES ('Somsri', 'Phayathai Street', 'Y');
+
+================================
+# MySQL Workbench / use bongo
+================================
+
+DELIMITER $$
+CREATE PROCEDURE getRating
+(IN inSid varchar(2), OUT outRating int)
+BEGIN
+    DECLARE temp varchar(2);
+    SET temp = inSid;
+    SELECT rating into outRating
+    FROM sailor
+    WHERE sid=inSid; 
+END$$
+
+SET @input= 22;
+CALL getRating(@input,@output);
+SELECT @output;
+
+#===========================
+# Execution plan / Explain
+============================
+SELECT S.sname
+FROM sailor S, boat B, reserve R
+WHERE S.sid = R.sid AND R.bid = B.bid AND (B.color = 'Red' OR B.color = 'Green');
+
+(SELECT S.sname
+FROM sailor S, boat B, reserve R
+WHERE s.sid = R.sid AND R.bid = B.bid AND B.color = 'Red')
+UNION
+(SELECT S.sname
+FROM sailor S, boat B, reserve R
+WHERE s.sid = R.sid AND R.bid = B.bid AND B.color = 'Green');
+
+#=============
+# INDEX
+#=============
+SHOW INDEX FROM branch;
+
+CREATE INDEX id1 ON branch(branch_name);
+ALTER TABLE branch DROP INDEX id1;
+CREATE INDEX id1 ON branch(branch_city);
+
+USE bongo;
+SHOW FULL TABLES IN bongo WHERE TABLE_TYPE LIKE 'VIEW';
+
+CREATE VIEW rentRedOrGreen AS
+SELECT distinct S.sname
+FROM sailor S, boat B, reserve R 
+WHERE S.sid=R.sid AND R.bid=B.bid
+  AND (B.color='red' OR B.color='green');
+
+CREATE VIEW v1 AS
+SELECT * FROM boat NATURAL JOIN reserve;
+
+SELECT * From v1;
+INSERT INTO v1 (bid,bname,color) VALUES (110,'Myboat','Black');
+SELECT * FROM v1;
+
+SELECT * FROM boat B LEFT OUT JOIN reserve R ON B.bid = R.bid;
+
+SELECT * FROM boat B RIGHT OUTER JOIN reserve R ON B.bid = R.bid;
+
+================
+# TRANSACTION
+================
+USE bongo;
+SELECT * FROM BOAT;
+
+SET autocommit = 0;
+START TRANSACTION;
+INSERT INTO boat VALUES(112,'AAA','Black');
+INSERT INTO boat VALUES(113,'BBB','Red');
+SELECT * FROM boat;
+ROLLBACK; หรือ  COMMIT;
+
+ 
