@@ -1,0 +1,1 @@
+docker run -d -p 27017:27017 --name test-mongo -v /Users/wichadak/Desktop/2110322_2565_1/2110322_2565_1/mongodata:/data/db -v /Users/wichadak/Desktop/2110322_2565_1/2110322_2565_1:/home mongo:latest
