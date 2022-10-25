@@ -5,7 +5,8 @@ mongoimport \
    --collection='customer' \
    --file=ordersystem_for_mongo/customer.csv \
    --type=csv \
-   --fields="cusotmer_id","customer_name","customer_ampur","customer_province","customer_zipcode"
+   --fields="customer_id","customer_name","customer_ampur","customer_province","customer_zipcode"
+   --authenticationDatabase=admin
 
 mongoimport \
    --db='ordersystem' \
@@ -13,9 +14,13 @@ mongoimport \
    --file=ordersystem_for_mongo/product.csv \
    --type=csv \
    --fields="product_id","product_name","product_color","product_price"
+   --authenticationDatabase=admin
+
 
 mongoimport \
    --db='ordersystem' \
    --collection='orders_w_lines' \
    --jsonArray \
    --file=ordersystem_for_mongo/orders_w_lines.json
+   --authenticationDatabase=admin
+
